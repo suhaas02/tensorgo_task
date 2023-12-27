@@ -1,0 +1,203 @@
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Table</title>
+</head>
+<body>
+
+  <h1>User Table</h1>
+
+  <table border="10">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Gender</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.map(user => { %>
+        <tr>
+          <td><%= user.id %></td>
+          <td><%= user.name %></td>
+          <td><%= user.email %></td>
+          <td><%= user.gender %></td>
+          <td><%= user.status %></td>
+          <td><button onclick="editUserData('<% user.id %>')">Edit</button></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  <button onclick="exportToCSV()">Export to CSV File</button>
+
+  
+  <div id="editModal" style="display:none">
+    <h2>Edit User</h2>
+    <form id="editForm">
+      <label for="editName">Name:</label>
+      <input type="text" id="editName" name="editName" required>
+      <br>
+      <label for="editEmail">Email:</label>
+      <input type="email" id="editEmail" name="editEmail" required>
+      <br>
+
+      <label for="editGender">Gender:</label>
+      <input type="gender" id="editGender" name="editGender" required>
+      <br>
+
+      <label for="editStatus">Status:</label>
+      <input type="status" id="editStatus" name="editStatus" required>
+      <br>
+      
+      <input type="submit" value="Save">
+    </form>
+  </div>
+
+</body>
+</html>
+ -->
+
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Table</title>
+  <style>
+    /* Add your CSS styles here */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    button {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .editable {
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>User Table</h1>
+
+  <button onclick="exportToCSV()">Export to CSV</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Gender</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(user => { %>
+        <tr>
+          <td><%= user.id %></td>
+          <td class="editable" contenteditable="true"><%= user.name %></td>
+          <td class="editable" contenteditable="true"><%= user.email %></td>
+          <td class="editable" contenteditable="true"><%= user.gender %></td>
+          <td class="editable" contenteditable="true"><%= user.status %></td>
+          <td>
+            <button onclick="updateUser('<%= user.id %>')">Update</button>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <div id="editModal" style="display:none">
+    <h2>Edit User</h2>
+    <form id="editForm">
+      <label for="editName">Name:</label>
+      <input type="text" id="editName" name="editName" required>
+      <br>
+      <label for="editEmail">Email:</label>
+      <input type="email" id="editEmail" name="editEmail" required>
+      <br>
+      <!-- Add more fields as needed -->
+      <input type="submit" value="Save">
+    </form>
+  </div>
+
+  <script>
+    function updateUser(userId) {
+      const updatedName = document.querySelector(`#userId_${userId} .editable:nth-child(2)`).innerText;
+      const updatedEmail = document.querySelector(`#userId_${userId} .editable:nth-child(3)`).innerText;
+      const updatedGender = document.querySelector(`#userId_${userId} .editable:nth-child(4)`).innerText;
+      const updatedStatus = document.querySelector(`#userId_${userId} .editable:nth-child(5)`).innerText;
+
+      // Make a request to the server to update the user data
+      fetch('/editData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          updatedName,
+          updatedEmail,
+          updatedGender,
+          updatedStatus,
+        }),
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('User data updated successfully');
+        } else {
+          alert('Error updating user data');
+        }
+      })
+      .catch(error => {
+        console.error('Error updating user data:', error.message);
+        alert('Error updating user data');
+      });
+    }
+
+    // Rest of your existing JavaScript code...
+
+    function exportToCSV() {
+    // Create a hidden link
+      const link = document.createElement('a');
+      link.style.display = 'none';
+
+      // Set the href attribute to the export CSV endpoint
+      link.href = '/exportCSV';
+
+      // Set the download attribute with the desired filename
+      link.download = 'user_data.csv';
+
+      // Append the link to the document
+      document.body.appendChild(link);
+
+      // Simulate a click to trigger the download
+      link.click();
+
+      // Remove the link from the document
+      document.body.removeChild(link);
+}
+
+  </script>
+
+</body>
+</html>
